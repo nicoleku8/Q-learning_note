@@ -11,83 +11,20 @@ To learn about Deep Q-Learning, we must review the foundational concepts behind 
 
 Let’s assume we are training a Pacman agent to find the optimal path to win the game. Reinforcement learning (RL) is a suitable framework for this task because it allows the agent to learn from rewards associated with its actions.
 
-In simpler environments with a limited number of discrete states, the standard Q-learning algorithm is effective. The process typically follows these steps:
+//pacman diagram
+
+In simpler environments with a limited number of discrete states, the standard Q-learning algorithm is effective. The process typically follows these steps as we learned in the previous note:
 
 #### Step 1: Initialize the Q-table
-Define a table $$Q(s, a)$$ to store the estimated future rewards for each state-action pair.
-
 #### Step 2: Update the Q-values
-After each action, update the Q-table using the Bellman equation:
-
-$$
-Q(s, a) \leftarrow Q(s, a) + \alpha \left[r + \gamma \max_{a'} Q(s', a') - Q(s, a)\right]
-$$
-
 #### Step 3: Extract the Optimal Policy
-Once trained, select the optimal action in each state by choosing the action with the highest Q-value:
+These steps ensure to select the optimal action in each state by choosing the action with the highest Q-value in the Q-table. 
 
-$$
-\pi^*(s) = \arg\max_a Q(s, a)
-$$
-
-
+Got it! Now we want to use these steps to other games that are complicated 
 
 ### A scenario where Q-learning doesnt work:
 
-Imagine playing a video game:
-1. You see pixels (high-dimensional state)
-2. You need to decide what action to take to win (maximize reward)
-3. You can’t store every possible screen (state) in a table
-
-So instead, you use a neural network to learn general patterns from similar states
-### What will be different for Deep Q-Learning?
-
-- 
-
----
-
-## Scaling to Large State Spaces
-
-However, when the **state space becomes exponentially large** (e.g., due to increased grid size, ghost positions, or power-ups), maintaining a Q-table becomes infeasible due to the curse of dimensionality and computationali efficiency.
-
----
-
-## Generalizing with Deep Q-Learning
-
-To address this, we replace the Q-table with a **function approximator**—typically a **deep neural network**—that learns general patterns in the data.
-
-### 1. State Representation
-Represent each state as a vector of features (e.g., Pacman’s position, ghost locations, remaining pellets) instead of a table index.
-
-### 2. Q-Network
-Train a neural network $$Q(s, a; \theta)$$ that takes a state $$s$$ and action $$a$$, and predicts the expected reward. The parameters $\theta$ are learned during training.
-
-### 3. Experience Replay
-Store past transitions $$(s, a, r, s')$$ in a replay buffer and sample batches to train the network. This helps break correlations between consecutive updates.
-
-### 4. Updating the Network
-Instead of updating a Q-table entry, we minimize the loss between the predicted Q-value and the target:
-
-
-
-
-### State Representation
-
-Use features instead of raw states:
-
-
-#### passes in Ql vs DQL
-
-#### Representing Finding the Optimal Path to Convolutional Neural Networks
-
-#### Training DQL
-
-Code Setup: 
-
-
-### Limitations
-
-While Q-Learning works well for small state-action spaces, it struggles with scalability in high-dimensional environments. Let's consider the case of Atari Breakout.
+Let's consider the case of Atari Breakout.
 
 A very simple version of the game might look like this:  
 ![simple_breakout](./simple_breakout.png)
@@ -124,5 +61,50 @@ Further complexity arises from:
 
 These factors further **inflate the state space**, making the use of lookup tables in high dimensional environments infeasible.
 
+
+
+### What Exactly Differentiates Deep Q-Learning from Traditional Q-Learning?
+
+- 
+
+---
+
+## Scaling to Large State Spaces
+
+As you saw it in the Atari game, when the **state space becomes exponentially large**, maintaining a Q-table becomes infeasible due to the curse of dimensionality and computationali efficiency.
+
+---
+
+## Generalizing with Deep Q-Learning
+
+To address this, we replace the Q-table with a **function approximator**—typically a **deep neural network**—that learns general patterns in the data.
+
+### 1. State Representation
+Represent each state as a vector of features (e.g., Pacman’s position, ghost locations, remaining pellets) instead of a table index.
+
+### 2. Q-Network
+Train a neural network $$Q(s, a; \theta)$$ that takes a state $$s$$ and action $$a$$, and predicts the expected reward. The parameters $\theta$ are learned during training.
+
+### 3. Experience Replay
+Store past transitions $$(s, a, r, s')$$ in a replay buffer and sample batches to train the network. This helps break correlations between consecutive updates.
+
+### 4. Updating the Network
+Instead of updating a Q-table entry, we minimize the loss between the predicted Q-value and the target:
+
+
+
+
+### State Representation
+
+Use features instead of raw states:
+
+
+#### passes in Ql vs DQL
+
+#### Representing Finding the Optimal Path to Convolutional Neural Networks
+
+#### Training DQL
+
+Code Setup: 
 
 

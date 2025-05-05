@@ -3,68 +3,87 @@ title: "Deep Q-Learning Notes"
 author: "Nicole Ku, Elliot Kim"
 ---
 
-# Deep Q-Learning
+# Introduction
+To learn about Deep Q-Learning, we must review the foundational concepts behind Q-Learning. Deep Q-Learning is an extension of reinforcement learning where it combines Q-learning with deep neural networks to handle environments with large or continuous state spaces, where traditional tabular Q-learning fails.
 
-## Agent and Environment
 
-An **agent** interacts with an **environment** with the goal of maximizing cumulative reward.
+## Intuition: From Q-Tables to Deep Q-Learning
 
-- **Agent**: perceives the state, selects actions
-- **Environment**: provides observations and rewards based on the agent’s actions
+Let’s assume we are training a Pacman agent to find the optimal path to win the game. Reinforcement learning (RL) is a suitable framework for this task because it allows the agent to learn from rewards associated with its actions.
 
-## Markov Decision Process (MDP)
+In simpler environments with a limited number of discrete states, the standard Q-learning algorithm is effective. The process typically follows these steps:
 
-A standard framework for modeling the environment in reinforcement learning.
+#### Step 1: Initialize the Q-table
+Define a table $$Q(s, a)$$ to store the estimated future rewards for each state-action pair.
 
-- **States** \( s \)
-- **Actions** \( a \)
-- **Rewards** \( r \)
-- **Transition probabilities** \( P(s' \mid s, a) \)
-
-## Optimal Values
-
-- **State Value Function**:
+#### Step 2: Update the Q-values
+After each action, update the Q-table using the Bellman equation:
 
 $$
-V^*(s) = \max_\pi \mathbb{E} \left[ \sum_{t=0}^\infty \gamma^t r_t \mid s_0 = s, \pi \right]
+Q(s, a) \leftarrow Q(s, a) + \alpha \left[r + \gamma \max_{a'} Q(s', a') - Q(s, a)\right]
 $$
 
-- **Action-Value Function (Q-function)**:
+#### Step 3: Extract the Optimal Policy
+Once trained, select the optimal action in each state by choosing the action with the highest Q-value:
 
 $$
-Q^*(s, a) = \max_\pi \mathbb{E} \left[ \sum_{t=0}^\infty \gamma^t r_t \mid s_0 = s, a_0 = a, \pi \right]
+\pi^*(s) = \arg\max_a Q(s, a)
 $$
 
-- **Optimal Policy**:
 
-$$
-\pi^*(s) = \arg\max_a Q^*(s, a)
-$$
 
-## Q-Learning
+### A scenario where Q-learning doesnt work:
 
-An off-policy TD control algorithm to learn the optimal Q-function:
+Imagine playing a video game:
+1. You see pixels (high-dimensional state)
+2. You need to decide what action to take to win (maximize reward)
+3. You can’t store every possible screen (state) in a table
 
-### Update Rule
+So instead, you use a neural network to learn general patterns from similar states
+### What will be different for Deep Q-Learning?
 
-$$
-Q(s_t, a_t) \leftarrow Q(s_t, a_t) + \alpha \left( r_{t+1} + \gamma \max_{a'} Q(s_{t+1}, a') - Q(s_t, a_t) \right)
-$$
+- 
 
-### Algorithm
+---
 
-1. Initialize \( Q(s, a) \) arbitrarily
-2. At each step, select \( a \) via ε-greedy policy
-3. Observe reward \( r \), next state \( s' \)
-4. Update \( Q(s, a) \) using the update rule
+## Scaling to Large State Spaces
 
-## Deep Q-Learning
+However, when the **state space becomes exponentially large** (e.g., due to increased grid size, ghost positions, or power-ups), maintaining a Q-table becomes infeasible due to the curse of dimensionality and computationali efficiency.
 
-When the state-action space is too large for a table, use a neural network \( Q_\theta(s, a) \).
+---
+
+## Generalizing with Deep Q-Learning
+
+To address this, we replace the Q-table with a **function approximator**—typically a **deep neural network**—that learns general patterns in the data.
+
+### 1. State Representation
+Represent each state as a vector of features (e.g., Pacman’s position, ghost locations, remaining pellets) instead of a table index.
+
+### 2. Q-Network
+Train a neural network $$Q(s, a; \theta)$$ that takes a state $$s$$ and action $$a$$, and predicts the expected reward. The parameters $\theta$ are learned during training.
+
+### 3. Experience Replay
+Store past transitions $$(s, a, r, s')$$ in a replay buffer and sample batches to train the network. This helps break correlations between consecutive updates.
+
+### 4. Updating the Network
+Instead of updating a Q-table entry, we minimize the loss between the predicted Q-value and the target:
+
+
+
 
 ### State Representation
 
 Use features instead of raw states:
 
-```text
-f(s, a) = [position of Pacman, direction, ghost locations, etc.]
+
+#### passes in Ql vs DQL
+
+#### Representing Finding the Optimal Path to Convolutional Neural Networks
+
+#### Training DQL
+
+Code Setup: 
+
+
+
+

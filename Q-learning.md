@@ -40,7 +40,7 @@ These steps ensure to select the optimal action in each state by choosing the ac
 
 Now we want to check if Q-learning works for problems with more complicated state space. 
 
-### A scenario where Q-learning doesnt work:
+## A scenario where Q-learning doesn't work:
 
 Let's consider the case of Atari Breakout.
 
@@ -82,29 +82,26 @@ These factors further **inflate the state space**, making the use of lookup tabl
 
 ---
 
-### What Exactly Differentiates Deep Q-Learning from Traditional Q-Learning?
+### From Q-learning to Deep Q-learning
 
-## Deep Q-Learning = Q-learning + Key Enhancements
+# Deep Q-Learning = Q-learning + Key Enhancements
 
 1. Q function Approximation via Neural Network
 
-In **traditional Q-learning**:
+In **traditional Q-learning**: Q value is stored in a table.
 
-> `Q(s, a)` is stored in a table.
-
-In **Deep Q-Learning**:
-
-> `Q(s, a) ≈ Q_ϕ(s, a)`  
-> where `Q_ϕ(s, a)` is predicted by a **neural network** with parameters `ϕ`.
+In **Deep Q-Learning**:Q value is predicted by a **neural network** with parameters `ϕ`.
 
 This introduces the need for **gradient descent** to update the network parameters
 
 2. Gradient Descent (loss based learning)
-> Since you're predicting Q-values with a network, you define a **loss function**.
-> You update the network weights using **gradient descent**.
+
+Since you're predicting Q-values with a network, you define a **loss function**.
+You update the network weights using **gradient descent**.
 
 3. Replay Buffer
-> Unlike tabular Q-learning (which uses each experience only once), Deep Q-Learning uses a **replay > buffer** to store past transitions.
+
+Unlike tabular Q-learning (which uses each experience only once), Deep Q-Learning uses a **replay > buffer** to store past transitions.
 
 ---
 

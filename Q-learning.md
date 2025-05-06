@@ -87,6 +87,7 @@ These factors further **inflate the state space**, making the use of lookup tabl
 ## Deep Q-Learning = Q-learning + Key Enhancements
 
 1. Q function Approximation via Neural Network
+
 In **traditional Q-learning**:
 
 > `Q(s, a)` is stored in a table.
@@ -99,8 +100,8 @@ In **Deep Q-Learning**:
 This introduces the need for **gradient descent** to update the network parameters
 
 2. Gradient Descent (loss based learning)
-> Since you're predicting Q-values with a network, you define a **loss function**:
-> You update the network weights using **gradient descent**:
+> Since you're predicting Q-values with a network, you define a **loss function**.
+> You update the network weights using **gradient descent**.
 
 3. Replay Buffer
 > Unlike tabular Q-learning (which uses each experience only once), Deep Q-Learning uses a **replay > buffer** to store past transitions.

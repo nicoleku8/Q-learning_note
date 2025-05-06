@@ -21,7 +21,7 @@ Let’s assume we are training a Pacman agent to find the optimal path to win th
 
 ![Pacman Game](./pacman.jpg)
 
-### 🍒 Q-Learning in the Context of Pacman
+### Q-Learning in the Context of Pacman
 
 | **Q-learning Concept**        | **Pacman Analogy**                                                                 |
 |------------------------------|------------------------------------------------------------------------------------|

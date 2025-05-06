@@ -4,23 +4,41 @@ author: "Nicole Ku, Elliot Kim"
 ---
 
 # Introduction
-To learn about Deep Q-Learning, we must review the foundational concepts behind Q-Learning. Deep Q-Learning is an extension of reinforcement learning where it combines Q-learning with deep neural networks to handle environments with large or continuous state spaces, where traditional tabular Q-learning fails.
+To understand Deep Q-Learning, it's helpful to first grasp the basics of Q-Learning.
+
+Imagine you're teaching a robot to play a game like Pacman. In traditional Q-Learning, the robot keeps a big table (called a Q-table) that tells it how good each move is from every situation it might see. It learns this table over time by playing the game, getting rewards, and updating the table based on what worked.
+
+But this only works if the number of possible situations (states) is small and manageable. What if Pacman plays in a huge maze, or in a 3D world with endless possibilities? The table would be way too big — you'd never finish filling it in.
+
+That’s where Deep Q-Learning comes in.
+
+Instead of using a table, we use a deep neural network to approximate the table. The network takes the current game screen (state) as input and predicts the value of each possible move. It learns to do this by playing the game and adjusting its weights, much like how the Q-table gets updated.
 
 
 ## Intuition: From Q-Tables to Deep Q-Learning
 
 Let’s assume we are training a Pacman agent to find the optimal path to win the game. Reinforcement learning (RL) is a suitable framework for this task because it allows the agent to learn from rewards associated with its actions.
 
-//pacman diagram
+![Pacman Game](./pacman.jpg)
 
-In simpler environments with a limited number of discrete states, the standard Q-learning algorithm is effective. The process typically follows these steps as we learned in the previous note:
+### 🍒 Q-Learning in the Context of Pacman
 
-#### Step 1: Initialize the Q-table
-#### Step 2: Update the Q-values
-#### Step 3: Extract the Optimal Policy
+| **Q-learning Concept**        | **Pacman Analogy**                                                                 |
+|------------------------------|------------------------------------------------------------------------------------|
+| **State \( s \)**             | Pacman's current position and nearby ghosts/pellets on the maze                    |
+| **Action \( a \)**            | Move up, down, left, or right                                                      |
+| **Reward \( r \)**            | +10 for eating a pellet, +50 for eating a ghost, -500 for getting caught by ghost |
+| **Q-table \( Q(s, a) \)**     | A big table where Pacman stores how good each move is from each situation          |
+| **Learning update equation** | \( Q(s, a) \leftarrow Q(s, a) + \alpha [r + \gamma \max_{a'} Q(s', a') - Q(s, a)] \) |
+| **Goal**                      | Learn which moves (actions) lead to the most points (long-term rewards)           |
+| **Exploration**               | Sometimes Pacman tries random moves (ϵ-greedy) to discover better paths            |
+| **Convergence**               | After many games, Pacman learns to play optimally — avoiding ghosts and eating more pellets |
+
+![Q-learning](./Qtable.png)
+
 These steps ensure to select the optimal action in each state by choosing the action with the highest Q-value in the Q-table. 
 
-Got it! Now we want to use these steps to other games that are complicated 
+Now we want to check if Q-learning works for problems with more complicated state space. 
 
 ### A scenario where Q-learning doesnt work:
 
@@ -61,11 +79,30 @@ Further complexity arises from:
 
 These factors further **inflate the state space**, making the use of lookup tables in high dimensional environments infeasible.
 
-
+---
 
 ### What Exactly Differentiates Deep Q-Learning from Traditional Q-Learning?
 
-- 
+## Deep Q-Learning = Q-learning + Key Enhancements
+
+1. Q function Approximation via Neural Network
+In **traditional Q-learning**:
+
+> `Q(s, a)` is stored in a table.
+
+In **Deep Q-Learning**:
+
+> `Q(s, a) ≈ Q_ϕ(s, a)`  
+> where `Q_ϕ(s, a)` is predicted by a **neural network** with parameters `ϕ`.
+
+This introduces the need for **gradient descent** to update the network parameters
+
+2. Gradient Descent (loss based learning)
+Since you're predicting Q-values with a network, you define a **loss function**:
+You update the network weights using **gradient descent**:
+
+3. Replay Buffer
+Unlike tabular Q-learning (which uses each experience only once), Deep Q-Learning uses a **replay buffer** to store past transitions.
 
 ---
 

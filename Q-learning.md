@@ -34,7 +34,7 @@ Let’s assume we are training a Pacman agent to find the optimal path to win th
 | **Exploration**               | Sometimes Pacman tries random moves (ϵ-greedy) to discover better paths            |
 | **Convergence**               | After many games, Pacman learns to play optimally — avoiding ghosts and eating more pellets |
 
-<img src="./QTable.png" alt="Breakout" width="500" height="300"/>
+<img src="./Qtable.png" alt="Breakout" width="500" height="300"/>
 
 These steps ensure to select the optimal action in each state by choosing the action with the highest Q-value in the Q-table. 
 

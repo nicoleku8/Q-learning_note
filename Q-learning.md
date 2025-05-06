@@ -34,7 +34,7 @@ Let’s assume we are training a Pacman agent to find the optimal path to win th
 | **Exploration**               | Sometimes Pacman tries random moves (ϵ-greedy) to discover better paths            |
 | **Convergence**               | After many games, Pacman learns to play optimally — avoiding ghosts and eating more pellets |
 
-<img src="./real_breakout.png" alt="Breakout" width="500" height="300"/>
+<img src="./QTable.png" alt="Breakout" width="500" height="300"/>
 
 These steps ensure to select the optimal action in each state by choosing the action with the highest Q-value in the Q-table. 
 
@@ -45,7 +45,7 @@ Now we want to check if Q-learning works for problems with more complicated stat
 Let's consider the case of Atari Breakout.
 
 A very simple version of the game might look like this:  
-![simple_breakout](./simple_breakout.png)
+<img src="./simple_breakout.png" alt="Breakout" width="500" height="300"/>
 
 The game is played on a small **12×12 grid**, with **yellow bricks** arranged in the top rows, a **white ball** that moves in all directions, and a **paddle** at the bottom that can move **left**, **right**, or **stay in place**. The goal is to break all the yellow blocks using the paddle in a **single attempt** (i.e., one life).
 
@@ -61,7 +61,8 @@ The agent (paddle) can take **3 actions**: `move left`, `move right`, or `stay`.
 **Total state-action pairs** = 12,672 × 3 = **38,016**
 
 This is small enough for **Q-Learning to be feasible** using a tabular approach. However, this is a very **simplified** version of Atari Breakout. 
-![real_breakout](./real_breakout.png)
+<img src="./real_breakout.png" alt="Breakout" width="500" height="300"/>
+
 The **standard version** uses a much larger **84×84 grid**, which increases:
 
 - Ball positions: from `144` to `7,056`

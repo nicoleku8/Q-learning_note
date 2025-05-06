@@ -98,23 +98,17 @@ In **Deep Q-Learning**:
 This introduces the need for **gradient descent** to update the network parameters
 
 2. Gradient Descent (loss based learning)
-Since you're predicting Q-values with a network, you define a **loss function**:
-You update the network weights using **gradient descent**:
+> Since you're predicting Q-values with a network, you define a **loss function**:
+> You update the network weights using **gradient descent**:
 
 3. Replay Buffer
-Unlike tabular Q-learning (which uses each experience only once), Deep Q-Learning uses a **replay buffer** to store past transitions.
-
----
-
-## Scaling to Large State Spaces
-
-As you saw it in the Atari game, when the **state space becomes exponentially large**, maintaining a Q-table becomes infeasible due to the curse of dimensionality and computationali efficiency.
+> Unlike tabular Q-learning (which uses each experience only once), Deep Q-Learning uses a **replay > buffer** to store past transitions.
 
 ---
 
 ## Generalizing with Deep Q-Learning
 
-To address this, we replace the Q-table with a **function approximator**—typically a **deep neural network**—that learns general patterns in the data.
+As you saw it in the Atari game, when the **state space becomes exponentially large**, maintaining a Q-table becomes infeasible due to the curse of dimensionality and computationali efficiency. To address this, we replace the Q-table with a **function approximator**—typically a **deep neural network**—that learns general patterns in the data.
 
 ### 1. State Representation
 Represent each state as a vector of features (e.g., Pacman’s position, ghost locations, remaining pellets) instead of a table index.

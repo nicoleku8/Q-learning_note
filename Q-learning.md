@@ -107,20 +107,37 @@ Unlike tabular Q-learning (which uses each experience only once), Deep Q-Learnin
 
 ## Generalizing with Deep Q-Learning
 
-As you saw it in the Atari game, when the **state space becomes exponentially large**, maintaining a Q-table becomes infeasible due to the curse of dimensionality and computationali efficiency. To address this, we replace the Q-table with a **function approximator**—typically a **deep neural network**—that learns general patterns in the data.
+As you saw it in the Atari Breakout example, when the **state space becomes exponentially large**, maintaining a Q-table becomes infeasible due to the curse of dimensionality and computationali efficiency. To address this, we replace the Q-table with a **function approximator**—typically a **deep neural network**—that learns general patterns in the data.
 
 ### 1. State Representation
-Represent each state as a vector of features (e.g., Pacman’s position, ghost locations, remaining pellets) instead of a table index.
+Represent each state as a vector of features instead of a table index. In Atari Breakout, this corresponds to a visual frame of the game. To convert this into a suitable input for a neural network:
+- We take the **last 4 grayscale frames** of the game screen.
+- Each frame is **84×84 pixels**, and stacking 4 of them forms a tensor of shape **4 × 84 × 84**.
+- This allows the model to infer **motion and direction** (e.g., of the ball and paddle) and goes by the temporal limitations presented by inputting just one frame.
+- A **Convolutional Neural Netowrk (CNN)** is used to apply filters to detect edges, shapes, and motion and reduce spatial dimensions while increasing semantic abstraction and output a flattened state representation vector.
 
-### 2. Q-Network
-Train a neural network $$Q(s, a; \theta)$$ that takes a state $$s$$ and action $$a$$, and predicts the expected reward. The parameters $\theta$ are learned during training.
+The flattened feature vector is then passed to the Deep Q-Network to estiamte Q-values for each action.
+
+### 2. Deep Q-Network
+Deep Q-Learning utilizes two different Deep Q-Networks. 
+#### 1. Main/Current Q-Network
+Approximates $Q(s, a; \theta)$ that takes the flattened state vector$ and action $a$, and predicts the expected reward. Actions are determined through the epsilon-greedy policy, similar to that of traditional Q-Learning.
+
+The parameters $\theta$ are learned during training. The network outputs Q-values for **all possible actions** in the action-space. In Atari Breakout, this corresponds to the paddle moving left, right, or staying.
+#### 2. Target Q-Network
+This network has the same architecture as the main Q-network, but with a separate set of weights denoted \( \theta^{-} \). It is used to compute the **target Q-value** during training:
+
+\[
+y = r + \gamma \max_{a'} Q(s', a'; \theta^{-})
+\]
+
+- Unlike the main network, **the target network is not updated every step**.
+- Instead, its parameters \( \theta^{-} \) are **periodically copied** from the main network (e.g., every 10,000 steps).
+- This helps prevent instability caused by having both predicted and target values depend on rapidly changing parameters.
+
 
 ### 3. Experience Replay
-Store past transitions $$(s, a, r, s')$$ in a replay buffer and sample batches to train the network. This helps break correlations between consecutive updates.
-
-### 4. Updating the Network
-Instead of updating a Q-table entry, we minimize the loss between the predicted Q-value and the target:
-
+Stores past transitions $$(s, a, r, s')$$ in a replay buffer and sample batches to train the network. This helps break correlations between consecutive updates.
 
 
 

@@ -135,10 +135,71 @@ $y = r + \gamma \max_{a'} Q(s', a'; \theta^{-})$
 
 
 ### 3. Experience Replay
-Stores past transitions $(s, a, r, s')$ in a replay buffer and sample batches to train the network. This helps break correlations between consecutive updates.
+Stores past transitions $(s, a, r, s')$ in a replay buffer $D$ and sample random mini-batch of transitions from $D$. This helps break correlations between consecutive updates.
 
-## Training DQL
+## Training DQL in Atari Breakout
 
+#### 1. **Initialize components**
+- A **Replay Buffer** `D` to store past transitions: `(s, a, r, s')`
+- A **Main Q-Network** with parameters `θ` (randomly initialized)
+- A **Target Q-Network** with parameters `θ⁻ = θ` (initially copied from main)
+
+---
+
+#### 2. **Preprocess game input**
+- Capture **grayscale game frames** (each of size `84 × 84` pixels)
+- **Stack the last 4 frames** to encode motion → input tensor: `4 × 84 × 84`
+- Feed this to the **CNN-based Q-network** to get Q-values for actions:
+  - Move Left
+  - Move Right
+  - Do Nothing
+
+---
+
+#### 3. **Action Selection (Exploration vs Exploitation)**
+Use **ϵ-greedy policy**:
+- With probability **ϵ**, select a **random** action (explore)
+- Otherwise, select action with **highest predicted Q-value** (exploit)
+
+Initially, ϵ is high (e.g., 1.0) and **decays over time** (e.g., to 0.1) to reduce exploration
+
+---
+
+#### 4. **Play and Store Experience**
+- Execute chosen action `aₜ`, observe reward `rₜ` and next state `sₜ₊₁`
+- Store transition `(sₜ, aₜ, rₜ, sₜ₊₁)` in replay buffer `D`
+
+---
+
+#### 5. **Sample Mini-Batch & Compute Targets**
+- Randomly sample a batch of transitions from `D`
+- For each:
+  ```math
+  yᵢ = 
+  \begin{cases}
+  rᵢ & \text{if } s'_i \text{ is terminal} \\
+  rᵢ + γ \max_{a'} Q(s'_i, a'; θ⁻) & \text{otherwise}
+  \end{cases}
+
+#### 6. **Update Main Q-Network**
+
+- Use gradient descent to **minimize squared error** between predicted and target Q-values:
+
+  $$
+  L(\theta) = \frac{1}{N} \sum_i \left( y_i - Q(s_i, a_i; \theta) \right)^2
+  $$
+
+- Backpropagate to update $\theta$
+
+---
+
+#### 7. **Periodically update Target Network**
+
+- Every $C$ steps, copy weights from main to target network:
+
+  $$
+  \theta^{-} \leftarrow \theta
+  $$
 
 
 #### passes in Ql vs DQL

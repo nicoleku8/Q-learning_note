@@ -186,19 +186,19 @@ Following is a general workflow of training deep Q network.
 
 <img src="./DQN_highlevel.png" alt="Training Loop" width="500" height="300"/>
 
-## High-Level DQN Workflow Table
+## High-Level DQN Workflow 
 
 | **Step** | **Description** |
 |---------|-----------------|
-| **1. Observe State** | The agent observes the current state of the environment (e.g., a game frame). |
-| **2. Select Action (ε-greedy)** | The agent uses an ε-greedy policy: it selects a random action with probability ε or the action with the highest Q-value from the Main Q-Network. |
-| **3. Execute Action & Store Transition** | The agent performs the chosen action, receives a reward and next state, and stores the transition `(s, a, r, s')` in the Replay Buffer. |
-| **4. Sample Mini-Batch** | A random mini-batch of transitions is sampled from the Replay Buffer to remove temporal correlations and improve training stability. |
-| **5. Compute Target Q-Values (Target Network)** | For each transition: if the next state is terminal, use \( y = r \); otherwise, compute \( y = r + \gamma \max_{a'} Q(s', a'; \theta^-) \) using the Target Network. |
-| **6. Compute Predicted Q-Values (Main Network)** | The Main Q-Network predicts \( Q(s, a; \theta) \) for the actions actually taken in each sampled state. |
-| **7. Compute Loss & Update Main Network** | Calculate the loss between predicted and target Q-values using mean squared error. Perform backpropagation and gradient descent to update \( \theta \). |
-| **8. Update Target Network** | Every C steps, copy weights from the Main Q-Network to the Target Network: \( \theta^- \leftarrow \theta \). This helps stabilize training. |
-| **Loop** | Repeat this workflow across many episodes and time steps. The agent gradually learns to take actions that maximize long-term rewards. |
+| **1. Observe State** | The agent looks at the current state of the environment (like a game frame). |
+| **2. Select Action (ε-greedy)** | The agent either chooses a random action to explore or picks the best-known action to exploit what it has learned. |
+| **3. Execute Action & Store Transition** | The agent performs the action, receives a reward and next state, and saves this experience in the Replay Buffer. |
+| **4. Sample Mini-Batch** | The agent randomly selects past experiences from the Replay Buffer to prepare for training. |
+| **5. Compute Target Q-Values** | For each experience, the agent calculates how good the next state might be. |
+| **6. Compute Predicted Q-Values** | The agent predicts how good its action was in the current state. |
+| **7. Compute Loss & Update Main Network** | The agent compares what it predicted with what it should have predicted and adjusts the network to learn. |
+| **8. Update Target Network** | Occasionally, the agent updates its helper network to keep learning stable. |
+| **Loop** | This process is repeated over many steps so the agent can keep learning better strategies. |
 
 
 ### 1. **Initialize Components**
@@ -236,14 +236,6 @@ The value of ϵ starts high (e.g., 1.0) and **decays over time** (e.g., to 0.1) 
 ### 5. **Sample Mini-Batch & Compute Targets**
 
 - Randomly sample a batch of transitions from `D`
-- For each sampled transition, compute the target value `yᵢ`:
-
-```math
-yᵢ = 
-\begin{cases}
-rᵢ & \text{if } s'_i \text{ is terminal} \\
-rᵢ + \gamma \max_{a'} Q(s'_i, a'; θ⁻) & \text{otherwise}
-\end{cases}
 
 
 

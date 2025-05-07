@@ -87,20 +87,20 @@ These factors further **inflate the state space**, making the use of lookup tabl
 
 # Deep Q-Learning = Q-learning + Key Enhancements
 
-1. Q function Approximation via Neural Network
+**1. Q function Approximation via Neural Network**
 
-- In **traditional Q-learning**: Q value is stored in a table.
+- In traditional Q-learning: Q value is stored in a **table**.
 
-- In **Deep Q-Learning**:Q value is predicted by a **neural network** with parameters `ϕ`.
+- In Deep Q-Learning:Q value is predicted by a **neural network** with parameters `ϕ`.
 
 This introduces the need for **gradient descent** to update the network parameters
 
-2. Gradient Descent (loss based learning)
+**2. Gradient Descent (loss based learning)**
 
 - Since you're predicting Q-values with a network, you define a **loss function**.
 - You update the network weights using **gradient descent**.
 
-3. Replay Buffer
+**3. Replay Buffer**
 
 - Unlike tabular Q-learning (which uses each experience only once), Deep Q-Learning uses a **replay buffer** to store past transitions.
 
@@ -126,36 +126,63 @@ Let’s now take a closer look at how Deep Q-Learning works in detail.
 As you saw it in the Atari Breakout example, when the **state space becomes exponentially large**, maintaining a Q-table becomes infeasible due to the curse of dimensionality and computationali efficiency. To address this, we replace the Q-table with a **function approximator**—typically a **deep neural network**—that learns general patterns in the data.
 
 The model architecture 
+<img src="./highlevel_model.png" alt="Breakout" width="500" height="300"/>
+
+
+ The diagram above shows the high-level structure: the network takes in a **state** and **action**, and outputs a **Q-value** estimate.
+
 
 ### 1. State Representation
-Represent each state as a vector of features instead of a table index. In Atari Breakout, this corresponds to a visual frame of the game. To convert this into a suitable input for a neural network:
-- We take the **last 4 grayscale frames** of the game screen.
-- Each frame is **84×84 pixels**, and stacking 4 of them forms a tensor of shape **4 × 84 × 84**.
-- This allows the model to infer **motion and direction** (e.g., of the ball and paddle) and goes by the temporal limitations presented by inputting just one frame.
-- A **Convolutional Neural Netowrk (CNN)** is used to apply filters to detect edges, shapes, and motion and reduce spatial dimensions while increasing semantic abstraction and output a flattened state representation vector.
+
+The **state** encodes the current observation of the environment.
+
+> - For example, in **Atari Breakout**, a state could be a stack of the **last 4 grayscale frames**, each sized \( 84 \times 84 \) pixels.
+- This allows the agent to capture motion and temporal dynamics.
 
 The flattened feature vector is then passed to the Deep Q-Network to estiamte Q-values for each action.
 
+### 2. Action Representation
+
+The agent has a set of **discrete actions** it can take, such as:
+
+- Move Left
+- Move Right
+- Do Nothing
+
+Instead of feeding the action into the network as a separate input, the network receives only the **state** and outputs Q-values for **all possible actions** in that state.
+
+
 ### 2. Deep Q-Network
 Deep Q-Learning utilizes two different Deep Q-Networks. 
-#### 1. Main/Current/Policy Q-Network
-Approximates $Q(s, a; \theta)$ that takes the flattened state vector$ and action $a$, and predicts the expected reward. Actions are determined through the epsilon-greedy policy, similar to that of traditional Q-Learning.
 
-The parameters $\theta$ are learned during training using gradient descent. The network outputs Q-values for **all possible actions** in the action-space. In Atari Breakout, this corresponds to the paddle moving left, right, or staying.
-#### 2. Target Q-Network
-This network has the same architecture as the main Q-network, but with a separate set of weights denoted $\theta^{-}$. It is used to compute the **target Q-value** during training:
+# a. Policy Q-Network
 
-$y = r + \gamma \max_{a'} Q(s', a'; \theta^{-})$
+- The **main neural network** used for action selection.
+- Follows an **ε-greedy policy**: sometimes acts greedily, sometimes explores.
+- **Updated after every training step** using mini-batches from the replay buffer.
 
-- Unlike the main network, **the target network is not updated every step**.
-- Instead, its parameters $\theta^{-}$ are **periodically copied** from the main network (e.g., every 10,000 steps).
-- This helps prevent instability caused by having both predicted and target values depend on rapidly changing parameters.
+# b. Target Q-Network
+
+- A **stable copy** of the policy network.
+- Used to compute the **target Q-value** in the Bellman update.
+- **Updated less frequently** (e.g., every few thousand steps) to provide stable targets and reduce oscillations.
 
 
-### 3. Experience Replay
-Stores past transitions $(s, a, r, s')$ in a replay buffer $D$ and sample random mini-batch of transitions from $D$. This helps break correlations between consecutive updates.
+### 3. Q value
+
+The Q-value represents:
+
+>- The expected **cumulative future reward** the agent can earn from a given state-action pair, assuming it acts optimally thereafter.
+
+This estimation guides the agent’s decisions, aiming to choose actions that maximize long-term gain rather than short-term reward.
 
 ---
+
+Now, how is the neural network trained and what makes Deep Q-Learning 
+
+
+<img src="./highlevel_training.jpeg" alt="Breakout" width="500" height="300"/>
+
 Since we learned each component of Deep Q-Learning model architecture and how each components function, let's apply it in Atari Breakout game. 
 
 ## Training DQL in Atari Breakout
@@ -165,8 +192,6 @@ Since we learned each component of Deep Q-Learning model architecture and how ea
 - A **Main Q-Network** with parameters `θ` (randomly initialized)
 - A **Target Q-Network** with parameters `θ⁻ = θ` (initially copied from main)
 
----
-
 #### 2. **Preprocess game input**
 - Capture **grayscale game frames** (each of size `84 × 84` pixels)
 - **Stack the last 4 frames** to encode motion → input tensor: `4 × 84 × 84`
@@ -175,8 +200,6 @@ Since we learned each component of Deep Q-Learning model architecture and how ea
   - Move Right
   - Do Nothing
 
----
-
 #### 3. **Action Selection (Exploration vs Exploitation)**
 Use **ϵ-greedy policy**:
 - With probability **ϵ**, select a **random** action (explore)
@@ -184,13 +207,10 @@ Use **ϵ-greedy policy**:
 
 Initially, ϵ is high (e.g., 1.0) and **decays over time** (e.g., to 0.1) to reduce exploration
 
----
-
 #### 4. **Play and Store Experience**
 - Execute chosen action `aₜ`, observe reward `rₜ` and next state `sₜ₊₁`
 - Store transition `(sₜ, aₜ, rₜ, sₜ₊₁)` in replay buffer `D`
 
----
 
 #### 5. **Sample Mini-Batch & Compute Targets**
 - Randomly sample a batch of transitions from `D`
@@ -212,43 +232,52 @@ Initially, ϵ is high (e.g., 1.0) and **decays over time** (e.g., to 0.1) to red
 
 - Backpropagate to update $\theta$
 
----
 
 #### 7. **Periodically update Target Network**
 
 - Every $C$ steps, copy weights from main to target network: $\theta^{-} \leftarrow \theta$
 
+---
+
 ## Overestimation in DQN
-Deep Q-Networks are not always perfect. They sometimes suffer from **overestimation bias**.
-This happens because the target Q-value is computed using: $y = r + \gamma \max_{a'} Q(s', a'; \theta^{-})$. This indicates that both the **action selection** (`\max`) and **Q-value estimation** are done using the **same target network** $\theta^{-}$. If Q-values are noisy or imprecise, the max operation tends to selection action with overestimated values, leading to overly optimistic Q-value updates over time. The accumulation of such biases may destabilize learning over time.
+
+Deep Q-Networks don’t always make perfect predictions — sometimes they guess that an action is better than it actually is. This is called **overestimation bias**.
+
+When the network updates its Q-values, it looks at the next state and picks the action that has the highest predicted value — using the same network to both choose the best action and evaluate how good that action is. If any of the Q-values are slightly too high (which often happens due to noise or error), the network tends to always pick those overestimated actions.
+
+> This happens because the target Q-value is computed using: $y = r + \gamma \max_{a'} Q(s', a'; \theta^{-})$. This indicates that both the **action selection** (`\max`) and **Q-value estimation** are done using the **same target network** $\theta^{-}$. If Q-values are noisy or imprecise, the max operation tends to selection action with overestimated values. 
+
+ Over time, this builds up, and the network keeps getting more and more confident about actions that may not actually be very good.
+
 
 ### Double DQN
-![Double DQN](./double_dqn.png)
+
+<img src="./double_dqn.png" alt="Breakout" width="500" height="300"/>
+
 To go about the issue of the overestimation bias, we can use a Double DQN, which decouples action selection and evaluation through two networks as shown in the figure above. Research shows that by doing so, it reduces over-estimation and stabilizes overall training.
 
-#### Analogy: Archery Contest
+#### Intuition: Analogy with Archery Contest
 Assume there are 100 archers who have the same skill level and are assigned to shoot at a target. However, there is always a gust of wind blowing 3mph. 
 
-Method 1 (DQN-style) lets each archer fire one arrow, and chooses the archer whose arrow landed closest to the center of the target. Method 2 (Double DQN) selects the same archer that landed the closest, but makes the archer fire again to evaluate their accuracy. The problem with method 1 is that the archer might just have gotten lucky due to the uncontrollable wind, leading to the method potentially overestimating the archer's true skill. The second method goes about this problem by selecting the same archer, but makes sure to not "double-count" the wind noise in the second round. 
+Method 1 (DQN-style) lets each archer fire one arrow, and chooses the archer whose arrow landed closest to the center of the target. 
+
+Method 2 (Double DQN) selects the same archer that landed the closest, but makes the archer fire again to evaluate their accuracy. 
+
+The problem with method 1 is that the archer might just have gotten lucky due to the uncontrollable wind, leading to the method potentially overestimating the archer's true skill. The second method goes about this problem by selecting the same archer, but makes sure to not "double-count" the wind noise in the second round. 
 
 
 #### Final Overview
 
-At the end, you might have felt overwhelmed by the amount of new information in this notes. We will make it clean for you on what are the key points.
+At the end, you might have felt overwhelmed by the amount of new information in this notes. We will make it clean for you on what are the key points with the real implemention of the algorithm.
 
 Q learning --> Deep Q-learning --> Double Deep Q-learning
 1. Higher overview
 
+Q lear
+
 2. Algorithm Comparison
 
 
-Major technicals that make Deep Q-learning better than Q-learning
-
-replay buffer
-
-
-
-#### Representing Finding the Optimal Path to Convolutional Neural Networks
 
 
 

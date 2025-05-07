@@ -249,9 +249,8 @@ Deep Q-Networks don’t always make perfect predictions — sometimes they guess
 When the network updates its Q-values, it looks at the next state and picks the action that has the highest predicted value — using the same network to both choose the best action and evaluate how good that action is. If any of the Q-values are slightly too high (which often happens due to noise or error), the network tends to always pick those overestimated actions.
 
 > This happens because the target Q-value is computed using:  
-> $$
-> y = r + \gamma \max_{a'} Q(s', a'; \theta^-)
-> $$.  
+><img src="./formula.png" alt="Training Loop" width="500" height="300"/>
+
 > In this formulation, the same target network \( \theta^{-} \) is used for both **selecting the best action** (via `max`) and **evaluating its value**.  
 > If the Q-values are noisy or inaccurate, the `max` operation tends to **select actions with overestimated values**, resulting in an overly optimistic target. This systematic bias can accumulate over time and degrade learning performance.
 
@@ -263,7 +262,6 @@ When the network updates its Q-values, it looks at the next state and picks the 
 ### Double DQN
 
 <img src="./double_dqn.png" alt="Breakout" width="500" height="300"/>
-()
 
 To go about the issue of the overestimation bias, we can use a Double DQN, which decouples action selection and evaluation through two networks as shown in the figure above. Research shows that by doing so, it reduces over-estimation and stabilizes overall training.
 

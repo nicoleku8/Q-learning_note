@@ -125,8 +125,8 @@ Let’s now take a closer look at how Deep Q-Learning works in detail.
 
 As you saw it in the Atari Breakout example, when the **state space becomes exponentially large**, maintaining a Q-table becomes infeasible due to the curse of dimensionality and computationali efficiency. To address this, we replace the Q-table with a **function approximator**—typically a **deep neural network**—that learns general patterns in the data.
 
-The model architecture 
 <img src="./highlevel_model.png" alt="Breakout" width="500" height="300"/>
+[Deep Q-learning lecture slide]
 
 
  The diagram above shows the high-level structure: the network takes in a **state** and **action**, and outputs a **Q-value** estimate.
@@ -136,7 +136,7 @@ The model architecture
 
 The **state** encodes the current observation of the environment.
 
-> - For example, in **Atari Breakout**, a state could be a stack of the **last 4 grayscale frames**, each sized \( 84 \times 84 \) pixels.
+- For example, in **Atari Breakout**, a state could be a stack of the **last 4 grayscale frames**, each sized \( 84 \times 84 \) pixels.
 - This allows the agent to capture motion and temporal dynamics.
 
 The flattened feature vector is then passed to the Deep Q-Network to estiamte Q-values for each action.
@@ -183,6 +183,7 @@ Now that we’ve examined each component of the Deep Q-Learning architecture, le
 Following is a general high level workflow of training deep Q network. 
 
 <img src="./DQN_highlevel.png" alt="Training Loop" width="500" height="300"/>
+[Ketan Doshi, 2020, https://towardsdatascience.com/reinforcement-learning-explained-visually-part-5-deep-q-networks-step-by-step-5a5317197f4b/]
 
 ## High-Level DQN Workflow 
 
@@ -234,6 +235,7 @@ To train the network, the agent randomly samples a batch of past transitions fro
 > - In **Step 5**, a **random mini-batch** of experiences is **sampled from `D`** to compute target Q-values and train the Q-network.
 
 > --> Breaks correlation between sequential experiences
+
 > --> Introduces diversity in training batches and help the network generalize better
 
 
@@ -246,7 +248,9 @@ Deep Q-Networks don’t always make perfect predictions — sometimes they guess
 When the network updates its Q-values, it looks at the next state and picks the action that has the highest predicted value — using the same network to both choose the best action and evaluate how good that action is. If any of the Q-values are slightly too high (which often happens due to noise or error), the network tends to always pick those overestimated actions.
 
 > This happens because the target Q-value is computed using:  
-> \( y = r + \gamma \max_{a'} Q(s', a'; \theta^{-}) \).  
+> $$
+> y = r + \gamma \max_{a'} Q(s', a'; \theta^-)
+> $$.  
 > In this formulation, the same target network \( \theta^{-} \) is used for both **selecting the best action** (via `max`) and **evaluating its value**.  
 > If the Q-values are noisy or inaccurate, the `max` operation tends to **select actions with overestimated values**, resulting in an overly optimistic target. This systematic bias can accumulate over time and degrade learning performance.
 
@@ -258,6 +262,7 @@ When the network updates its Q-values, it looks at the next state and picks the 
 ### Double DQN
 
 <img src="./double_dqn.png" alt="Breakout" width="500" height="300"/>
+()
 
 To go about the issue of the overestimation bias, we can use a Double DQN, which decouples action selection and evaluation through two networks as shown in the figure above. Research shows that by doing so, it reduces over-estimation and stabilizes overall training.
 

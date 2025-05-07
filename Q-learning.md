@@ -195,14 +195,22 @@ Initially, ϵ is high (e.g., 1.0) and **decays over time** (e.g., to 0.1) to red
 
 #### 7. **Periodically update Target Network**
 
-- Every $C$ steps, copy weights from main to target network:
+- Every $C$ steps, copy weights from main to target network: $\theta^{-} \leftarrow \theta$
 
-  $$
-  \theta^{-} \leftarrow \theta
-  $$
+## Overestimation in DQN
+Deep Q-Networks are not always perfect. They sometimes suffer from **overestimation bias**.
+This happens because the target Q-value is computed using: $y = r + \gamma \max_{a'} Q(s', a'; \theta^{-})$. This indicates that both the **action selection** (`\max`) and **Q-value estimation** are done using the **same target network** $\theta^{-}$. If Q-values are noisy or imprecise, the max operation tends to selection action with overestimated values, leading to overly optimistic Q-value updates over time. The accumulation of such biases may destabilize learning over time.
+
+### Double DQN
+![Double DQN](./double_dqn.png)
+To go about the issue of the overestimation bias, we can use a Double DQN, which decouples action selection and evaluation through two networks as shown in the figure above. Research shows that by doing so, it reduces over-estimation and stabilizes overall training.
+
+#### Analogy: Archery Contest
+Assume there are 100 archers who have the same skill level and are assigned to shoot at a target. However, there is always a gust of wind blowing 3mph. 
+
+Method 1 (DQN-style) lets each archer fire one arrow, and chooses the archer whose arrow landed closest to the center of the target. Method 2 (Double DQN) selects the same archer that landed the closest, but makes the archer fire again to evaluate their accuracy. The problem with method 1 is that the archer might just have gotten lucky due to the uncontrollable wind, leading to the method potentially overestimating the archer's true skill. The second method goes about this problem by selecting the same archer, but makes sure to not "double-count" the wind noise in the second round. 
 
 
-#### passes in Ql vs DQL
 
 #### Representing Finding the Optimal Path to Convolutional Neural Networks
 

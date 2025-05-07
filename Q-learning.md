@@ -1,6 +1,6 @@
 ---
 title: "Deep Q-Learning Notes"
-author: "Nicole Ku, Elliot Kim"
+author: "Nicole Ku (nnk26), Elliot Kim (emk255)"
 ---
 
 # Introduction

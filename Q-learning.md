@@ -120,38 +120,31 @@ The flattened feature vector is then passed to the Deep Q-Network to estiamte Q-
 
 ### 2. Deep Q-Network
 Deep Q-Learning utilizes two different Deep Q-Networks. 
-#### 1. Main/Current Q-Network
+#### 1. Main/Current/Policy Q-Network
 Approximates $Q(s, a; \theta)$ that takes the flattened state vector$ and action $a$, and predicts the expected reward. Actions are determined through the epsilon-greedy policy, similar to that of traditional Q-Learning.
 
-The parameters $\theta$ are learned during training. The network outputs Q-values for **all possible actions** in the action-space. In Atari Breakout, this corresponds to the paddle moving left, right, or staying.
+The parameters $\theta$ are learned during training using gradient descent. The network outputs Q-values for **all possible actions** in the action-space. In Atari Breakout, this corresponds to the paddle moving left, right, or staying.
 #### 2. Target Q-Network
-This network has the same architecture as the main Q-network, but with a separate set of weights denoted \( \theta^{-} \). It is used to compute the **target Q-value** during training:
+This network has the same architecture as the main Q-network, but with a separate set of weights denoted $\theta^{-}$. It is used to compute the **target Q-value** during training:
 
-\[
-y = r + \gamma \max_{a'} Q(s', a'; \theta^{-})
-\]
+$y = r + \gamma \max_{a'} Q(s', a'; \theta^{-})$
 
 - Unlike the main network, **the target network is not updated every step**.
-- Instead, its parameters \( \theta^{-} \) are **periodically copied** from the main network (e.g., every 10,000 steps).
+- Instead, its parameters $\theta^{-}$ are **periodically copied** from the main network (e.g., every 10,000 steps).
 - This helps prevent instability caused by having both predicted and target values depend on rapidly changing parameters.
 
 
 ### 3. Experience Replay
-Stores past transitions $$(s, a, r, s')$$ in a replay buffer and sample batches to train the network. This helps break correlations between consecutive updates.
+Stores past transitions $(s, a, r, s')$ in a replay buffer and sample batches to train the network. This helps break correlations between consecutive updates.
 
+## Training DQL
 
-
-### State Representation
-
-Use features instead of raw states:
 
 
 #### passes in Ql vs DQL
 
 #### Representing Finding the Optimal Path to Convolutional Neural Networks
 
-#### Training DQL
 
-Code Setup: 
 
 

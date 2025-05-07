@@ -278,7 +278,7 @@ Method 2 (Double DQN) selects the same archer that landed the closest, but makes
 The problem with method 1 is that the archer might just have gotten lucky due to the uncontrollable wind, leading to the method potentially overestimating the archer's true skill. The second method goes about this problem by selecting the same archer, but makes sure to not "double-count" the wind noise in the second round. 
 
 
-#### Final Overview
+## Final Overview
 
 Let’s take a step back and review how everything fits together, especially how Q-Learning evolved into Deep Q-Learning and then into Double DQN.
 

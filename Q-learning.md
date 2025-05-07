@@ -37,6 +37,8 @@ Let’s assume we are training a Pacman agent to find the optimal path to win th
 <img src="./Qtable.png" alt="Breakout" width="500" height="300"/>
 [ADL,2018, https://www.freecodecamp.org/news/an-introduction-to-q-learning-reinforcement-learning-14ac0b4493cc/]
 
+
+
   Q-learning teaches Pacman how to play optimally by letting him learn from experience. At the start, Pacman initializes a Q-table that keeps track of how good each move is in every situation. At each step, he chooses an action (like moving up, down, left, or right), performs it, and receives a reward such as +10 for eating a pellet or -500 for getting caught. Then, he updates the Q-table using the learning rule, which adjusts the value based on future rewards. Over many episodes, this loop of choosing actions, measuring rewards, and updating the Q-table allows Pacman to converge on the best strategy—maximizing long-term points by avoiding ghosts and targeting pellets efficiently.
 
 

@@ -265,6 +265,8 @@ When the network updates its Q-values, it looks at the next state and picks the 
 ### Double DQN
 
 <img src="./double_dqn.png" alt="Breakout" width="500" height="300"/>
+[Deep Q-learning lecture slide]
+
 
 To go about the issue of the overestimation bias, we can use a Double DQN, which decouples action selection and evaluation through two networks as shown in the figure above. Research shows that by doing so, it reduces over-estimation and stabilizes overall training.
 

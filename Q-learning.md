@@ -200,43 +200,30 @@ Following is a general workflow of training deep Q network.
 | **8. Update Target Network** | Occasionally, the agent updates its helper network to keep learning stable. |
 | **Loop** | This process is repeated over many steps so the agent can keep learning better strategies. |
 
+### Step 1. **Initialize Components**
 
-### 1. **Initialize Components**
-
-- A **Replay Buffer** `D` to store past transitions: `(s, a, r, s')`
-- A **Main Q-Network** with parameters `θ` (randomly initialized)
-- A **Target Q-Network** with parameters `θ⁻ = θ` (initially copied from main)
+The training begins by setting up key components. A **Replay Buffer** `D` is created to store the agent’s past transitions in the form `(state, action, reward, next state)`. Two neural networks are initialized: the **Main Q-Network** with randomly initialized parameters `θ`, and a **Target Q-Network** with parameters `θ⁻`, which is initially a copy of the main network.
 
 
-### 2. **Preprocess Game Input**
+### Step 2. **Preprocess Game Input**
 
-- Capture **grayscale game frames** (each of size `84 × 84` pixels)
-- **Stack the last 4 frames** to encode motion → input tensor: `4 × 84 × 84`
-- Feed this into the **CNN-based Q-network** to output Q-values for each action:
-  - Move Left  
-  - Move Right  
-  - Do Nothing  
+The agent receives raw game frames, which are first converted to grayscale and resized to `84 × 84` pixels. To capture movement, the last 4 frames are stacked, forming an input tensor of shape `4 × 84 × 84`. This preprocessed input is fed into a CNN-based Q-network, which outputs Q-values for each possible action: move left, move right, or do nothing.
 
 
-### 3. **Action Selection (Exploration vs. Exploitation)**
+### Step 3. **Action Selection (Exploration vs. Exploitation)**
 
-Use an **ϵ-greedy policy**:
-- With probability **ϵ**, select a **random** action (explore)
-- Otherwise, select the action with the **highest predicted Q-value** (exploit)
-
-The value of ϵ starts high (e.g., 1.0) and **decays over time** (e.g., to 0.1) to shift gradually from exploration to exploitation.
+To balance learning and exploration, the agent follows an **ε-greedy policy**. With probability `ε`, it selects a random action to explore the environment. Otherwise, it chooses the action with the highest predicted Q-value to exploit what it has learned. The value of `ε` starts high and gradually decreases, encouraging exploration early and more confident decisions later.
 
 
-### 4. **Play and Store Experience**
+### Step 4. **Play and Store Experience**
 
-- Execute the selected action `aₜ`, observe the reward `rₜ` and the next state `sₜ₊₁`
-- Store the full transition `(sₜ, aₜ, rₜ, sₜ₊₁)` in replay buffer `D`
+Once an action is chosen, the agent performs it in the environment, receives a reward, and observes the next state. This experience `(sₜ, aₜ, rₜ, sₜ₊₁)` is then saved in the Replay Buffer `D`, allowing the agent to reuse it later during training.
 
 
-### 5. **Sample Mini-Batch & Compute Targets**
 
-- Randomly sample a batch of transitions from `D`
+### Step 5. **Sample Mini-Batch & Compute Targets**
 
+At each training step, the agent randomly samples a batch of past transitions from the Replay Buffer. These samples are used to compute target Q-values, which guide how the network should update its predictions to better match expected outcomes. Random sampling ensures a mix of diverse and uncorrelated experiences, helping the network generalize more effectively.
 
 
 >  ### Did you notice how the Replay Buffer is used here?
@@ -273,7 +260,7 @@ When the network updates its Q-values, it looks at the next state and picks the 
 
 To go about the issue of the overestimation bias, we can use a Double DQN, which decouples action selection and evaluation through two networks as shown in the figure above. Research shows that by doing so, it reduces over-estimation and stabilizes overall training.
 
-## Intuition: Analogy with Archery Contest
+#### Intuition: Analogy with Archery Contest
 Assume there are 100 archers who have the same skill level and are assigned to shoot at a target. However, there is always a gust of wind blowing 3mph. 
 
 Method 1 (DQN-style) lets each archer fire one arrow, and chooses the archer whose arrow landed closest to the center of the target. 

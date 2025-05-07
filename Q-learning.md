@@ -182,7 +182,7 @@ This estimation guides the agent’s decisions, aiming to choose actions that ma
 
 Now that we’ve examined each component of the Deep Q-Learning architecture, let’s walk through how the model is trained — step by step — in the context of Atari Breakout.
 
-Following is a general workflow of training deep Q network. 
+Following is a general high level workflow of training deep Q network. 
 
 <img src="./DQN_highlevel.png" alt="Training Loop" width="500" height="300"/>
 
@@ -200,30 +200,32 @@ Following is a general workflow of training deep Q network.
 | **8. Update Target Network** | Occasionally, the agent updates its helper network to keep learning stable. |
 | **Loop** | This process is repeated over many steps so the agent can keep learning better strategies. |
 
-### Step 1. **Initialize Components**
+### Atari Breakout
 
-The training begins by setting up key components. A **Replay Buffer** `D` is created to store the agent’s past transitions in the form `(state, action, reward, next state)`. Two neural networks are initialized: the **Main Q-Network** with randomly initialized parameters `θ`, and a **Target Q-Network** with parameters `θ⁻`, which is initially a copy of the main network.
+#### Step 1. **Initialize Components**
 
-
-### Step 2. **Preprocess Game Input**
-
-The agent receives raw game frames, which are first converted to grayscale and resized to `84 × 84` pixels. To capture movement, the last 4 frames are stacked, forming an input tensor of shape `4 × 84 × 84`. This preprocessed input is fed into a CNN-based Q-network, which outputs Q-values for each possible action: move left, move right, or do nothing.
+Training a Deep Q-Learning agent for Atari Breakout begins by setting up the foundational components. A **Replay Buffer** `D` is initialized to store the agent’s experiences in the form of transitions `(state, action, reward, next state)`. These transitions will later be sampled during training. Alongside the buffer, two neural networks are created: the **Main Q-Network**, which is trained to predict Q-values, and the **Target Q-Network**, which is initially a copy of the main network and used to provide stable learning targets. The weights of the Main Q-Network are randomly initialized.
 
 
-### Step 3. **Action Selection (Exploration vs. Exploitation)**
+#### Step 2. **Preprocess Game Input**
 
-To balance learning and exploration, the agent follows an **ε-greedy policy**. With probability `ε`, it selects a random action to explore the environment. Otherwise, it chooses the action with the highest predicted Q-value to exploit what it has learned. The value of `ε` starts high and gradually decreases, encouraging exploration early and more confident decisions later.
-
-
-### Step 4. **Play and Store Experience**
-
-Once an action is chosen, the agent performs it in the environment, receives a reward, and observes the next state. This experience `(sₜ, aₜ, rₜ, sₜ₊₁)` is then saved in the Replay Buffer `D`, allowing the agent to reuse it later during training.
+Atari Breakout provides RGB game frames that are large and high-resolution. To simplify the input and speed up training, each frame is first converted to grayscale and resized to `84 × 84` pixels. Then, to help the agent understand movement — such as the speed and direction of the ball — the last 4 frames are **stacked** into a single input tensor of shape `4 × 84 × 84`. This tensor captures short-term temporal dynamics. The stacked input is passed through a **convolutional neural network (CNN)**, which outputs a Q-value for each possible action the agent can take.
 
 
+#### Step 3. **Action Selection (Exploration vs. Exploitation)**
 
-### Step 5. **Sample Mini-Batch & Compute Targets**
+In Breakout, the agent can perform one of three discrete actions: **move left**, **move right**, or **do nothing** (keep the paddle still). To decide which action to take, the agent follows an **ε-greedy policy**. Early in training, it chooses actions randomly with a high value of ε (e.g., 1.0), ensuring broad exploration of the state space. Over time, ε decays (e.g., to 0.1), and the agent begins exploiting what it has learned by selecting the action with the highest predicted Q-value. This balance helps the agent discover effective strategies while avoiding premature convergence.
 
-At each training step, the agent randomly samples a batch of past transitions from the Replay Buffer. These samples are used to compute target Q-values, which guide how the network should update its predictions to better match expected outcomes. Random sampling ensures a mix of diverse and uncorrelated experiences, helping the network generalize more effectively.
+
+#### Step 4. **Play and Store Experience**
+
+After selecting an action, the agent executes it in the Breakout game environment. Depending on the outcome, it receives a **reward** — for example, hitting a brick yields a positive reward, while missing the ball may give no reward or a penalty. The agent also observes the **next state**, which becomes the basis for the next decision. The full transition — including the original state, the action taken, the reward, and the resulting next state — is stored in the **Replay Buffer**. This buffer will later provide a diverse set of experiences for training the Q-network.
+
+
+#### Step 5. **Sample Mini-Batch & Compute Targets**
+
+To train the network, the agent randomly samples a batch of past transitions from the Replay Buffer. Random sampling helps break the correlation between consecutive frames, which could otherwise destabilize learning. For each sampled transition, the agent computes a **target Q-value**, which estimates how good a given action was based on the next state. These targets are then compared to the Q-values predicted by the Main Q-Network, and the difference (loss) is used to update the network’s parameters via gradient descent. This process repeats continuously, allowing the agent to learn how to maximize its cumulative reward over time.
+
 
 
 >  ### Did you notice how the Replay Buffer is used here?
@@ -249,6 +251,7 @@ When the network updates its Q-values, it looks at the next state and picks the 
 > \( y = r + \gamma \max_{a'} Q(s', a'; \theta^{-}) \).  
 > In this formulation, the same target network \( \theta^{-} \) is used for both **selecting the best action** (via `max`) and **evaluating its value**.  
 > If the Q-values are noisy or inaccurate, the `max` operation tends to **select actions with overestimated values**, resulting in an overly optimistic target. This systematic bias can accumulate over time and degrade learning performance.
+
 
 
  Over time, this builds up, and the network keeps getting more and more confident about actions that may not actually be very good.

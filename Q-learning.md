@@ -105,11 +105,11 @@ This introduces the need for **gradient descent** to update the network paramete
 - Unlike tabular Q-learning (which uses each experience only once), Deep Q-Learning uses a **replay buffer** to store past transitions.
 
 > So far, implementing neural network and applying gradient descent with its loss function will sound familiar since they were introduced > > multiple times in deep learning. However, what exactly is replay buffer?
-> - In **tabular Q-learning**:
+> In **tabular Q-learning**:
 >  - The agent observes a transition \( (s, a, r, s') \) and immediately updates the Q-table.
 >  - The experience is discarded after one use.
 >
-> - In **Deep Q-learning**:
+>  In **Deep Q-learning**:
 >  - Each transition \( (s, a, r, s') \) is stored in a **replay buffer**.
 >  - During training, the algorithm randomly samples mini-batches from this buffer to update the neural network.
 >

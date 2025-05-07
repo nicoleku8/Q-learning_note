@@ -36,7 +36,8 @@ Let’s assume we are training a Pacman agent to find the optimal path to win th
 
 <img src="./Qtable.png" alt="Breakout" width="500" height="300"/>
 
-These steps ensure to select the optimal action in each state by choosing the action with the highest Q-value in the Q-table. 
+  Q-learning teaches Pacman how to play optimally by letting him learn from experience. At the start, Pacman initializes a Q-table that keeps track of how good each move is in every situation. At each step, he chooses an action (like moving up, down, left, or right), performs it, and receives a reward such as +10 for eating a pellet or -500 for getting caught. Then, he updates the Q-table using the learning rule, which adjusts the value based on future rewards. Over many episodes, this loop of choosing actions, measuring rewards, and updating the Q-table allows Pacman to converge on the best strategy—maximizing long-term points by avoiding ghosts and targeting pellets efficiently.
+
 
 Now we want to check if Q-learning works for problems with more complicated state space. 
 
@@ -88,26 +89,44 @@ These factors further **inflate the state space**, making the use of lookup tabl
 
 1. Q function Approximation via Neural Network
 
-In **traditional Q-learning**: Q value is stored in a table.
+- In **traditional Q-learning**: Q value is stored in a table.
 
-In **Deep Q-Learning**:Q value is predicted by a **neural network** with parameters `ϕ`.
+- In **Deep Q-Learning**:Q value is predicted by a **neural network** with parameters `ϕ`.
 
 This introduces the need for **gradient descent** to update the network parameters
 
 2. Gradient Descent (loss based learning)
 
-Since you're predicting Q-values with a network, you define a **loss function**.
-You update the network weights using **gradient descent**.
+- Since you're predicting Q-values with a network, you define a **loss function**.
+- You update the network weights using **gradient descent**.
 
 3. Replay Buffer
 
-Unlike tabular Q-learning (which uses each experience only once), Deep Q-Learning uses a **replay > buffer** to store past transitions.
+- Unlike tabular Q-learning (which uses each experience only once), Deep Q-Learning uses a **replay buffer** to store past transitions.
+
+> So far, implementing neural network and applying gradient descent with its loss function will sound familiar since they were introduced > > multiple times in deep learning. However, what exactly is replay buffer?
+> - In **tabular Q-learning**:
+>  - The agent observes a transition \( (s, a, r, s') \) and immediately updates the Q-table.
+>  - The experience is discarded after one use.
+>
+> - In **Deep Q-learning**:
+>  - Each transition \( (s, a, r, s') \) is stored in a **replay buffer**.
+>  - During training, the algorithm randomly samples mini-batches from this buffer to update the neural network.
+>
+>      With a replay buffer, Deep Q-Learning stores past experiences and randomly picks from them to train. This breaks the pattern of learning from one moment to the next, so the Q-values don't depend on each other too much. It also lets the model use the same data more than once and helps it learn more steadily.
+
+
+---
+
+Let’s now take a closer look at how Deep Q-Learning works in detail.
 
 ---
 
 ## Generalizing with Deep Q-Learning
 
 As you saw it in the Atari Breakout example, when the **state space becomes exponentially large**, maintaining a Q-table becomes infeasible due to the curse of dimensionality and computationali efficiency. To address this, we replace the Q-table with a **function approximator**—typically a **deep neural network**—that learns general patterns in the data.
+
+The model architecture 
 
 ### 1. State Representation
 Represent each state as a vector of features instead of a table index. In Atari Breakout, this corresponds to a visual frame of the game. To convert this into a suitable input for a neural network:
@@ -136,6 +155,9 @@ $y = r + \gamma \max_{a'} Q(s', a'; \theta^{-})$
 
 ### 3. Experience Replay
 Stores past transitions $(s, a, r, s')$ in a replay buffer $D$ and sample random mini-batch of transitions from $D$. This helps break correlations between consecutive updates.
+
+---
+Since we learned each component of Deep Q-Learning model architecture and how each components function, let's apply it in Atari Breakout game. 
 
 ## Training DQL in Atari Breakout
 
@@ -209,6 +231,21 @@ To go about the issue of the overestimation bias, we can use a Double DQN, which
 Assume there are 100 archers who have the same skill level and are assigned to shoot at a target. However, there is always a gust of wind blowing 3mph. 
 
 Method 1 (DQN-style) lets each archer fire one arrow, and chooses the archer whose arrow landed closest to the center of the target. Method 2 (Double DQN) selects the same archer that landed the closest, but makes the archer fire again to evaluate their accuracy. The problem with method 1 is that the archer might just have gotten lucky due to the uncontrollable wind, leading to the method potentially overestimating the archer's true skill. The second method goes about this problem by selecting the same archer, but makes sure to not "double-count" the wind noise in the second round. 
+
+
+#### Final Overview
+
+At the end, you might have felt overwhelmed by the amount of new information in this notes. We will make it clean for you on what are the key points.
+
+Q learning --> Deep Q-learning --> Double Deep Q-learning
+1. Higher overview
+
+2. Algorithm Comparison
+
+
+Major technicals that make Deep Q-learning better than Q-learning
+
+replay buffer
 
 
 

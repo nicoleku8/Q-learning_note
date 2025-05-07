@@ -107,14 +107,12 @@ This introduces the need for **gradient descent** to update the network paramete
 > So far, implementing a neural network and applying gradient descent using a loss function may sound familiar, as these concepts are commonly introduced in deep learning. However, what exactly is a replay buffer?
 > 
 > In **tabular Q-learning**:
->  - The agent observes a transition \( (s, a, r, s') \) and immediately updates the Q-table.
->  - The experience is discarded after one use.
+> - The agent learns one step at a time. It sees what happens after an action and immediately updates its Q-table using that single experience. Once that update is done, the experience is gone — never used again.
 >
 >  In **Deep Q-learning**:
->  - Each transition \( (s, a, r, s') \) is stored in a **replay buffer**.
->  - During training, the algorithm randomly samples mini-batches from this buffer to update the neural network.
+>  - We use a replay buffer like a notebook. Every time the agent has an experience — like moving in a direction and getting a reward — it writes it down in the notebook (the buffer). Later, instead of learning only from the newest experience, it randomly picks past experiences from this notebook to train the neural network.
 >
->      With a replay buffer, Deep Q-Learning stores past experiences and randomly picks from them to train. This breaks the pattern of learning from one moment to the next, so the Q-values don't depend on each other too much. It also lets the model use the same data more than once and helps it learn more steadily.
+> 
 
 
 ---

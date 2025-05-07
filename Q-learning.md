@@ -155,13 +155,13 @@ Instead of feeding the action into the network as a separate input, the network 
 ### 2. Deep Q-Network
 Deep Q-Learning utilizes two different Deep Q-Networks. 
 
-# a. Policy Q-Network
+#### a. Policy Q-Network
 
 - The **main neural network** used for action selection.
 - Follows an **ε-greedy policy**: sometimes acts greedily, sometimes explores.
 - **Updated after every training step** using mini-batches from the replay buffer.
 
-# b. Target Q-Network
+#### b. Target Q-Network
 
 - A **stable copy** of the policy network.
 - Used to compute the **target Q-value** in the Bellman update.
@@ -178,64 +178,85 @@ This estimation guides the agent’s decisions, aiming to choose actions that ma
 
 ---
 
-Now, how is the neural network trained and what makes Deep Q-Learning 
+## Training Deep Q-Learning in Atari Breakout
+
+Now that we’ve examined each component of the Deep Q-Learning architecture, let’s walk through how the model is trained — step by step — in the context of Atari Breakout.
+
+Following is a general workflow of training deep Q network. 
+
+<img src="./DQN_highlevel.png" alt="Training Loop" width="500" height="300"/>
+
+## High-Level DQN Workflow Table
+
+| **Step** | **Description** |
+|---------|-----------------|
+| **1. Observe State** | The agent observes the current state of the environment (e.g., a game frame). |
+| **2. Select Action (ε-greedy)** | The agent uses an ε-greedy policy: it selects a random action with probability ε or the action with the highest Q-value from the Main Q-Network. |
+| **3. Execute Action & Store Transition** | The agent performs the chosen action, receives a reward and next state, and stores the transition `(s, a, r, s')` in the Replay Buffer. |
+| **4. Sample Mini-Batch** | A random mini-batch of transitions is sampled from the Replay Buffer to remove temporal correlations and improve training stability. |
+| **5. Compute Target Q-Values (Target Network)** | For each transition: if the next state is terminal, use \( y = r \); otherwise, compute \( y = r + \gamma \max_{a'} Q(s', a'; \theta^-) \) using the Target Network. |
+| **6. Compute Predicted Q-Values (Main Network)** | The Main Q-Network predicts \( Q(s, a; \theta) \) for the actions actually taken in each sampled state. |
+| **7. Compute Loss & Update Main Network** | Calculate the loss between predicted and target Q-values using mean squared error. Perform backpropagation and gradient descent to update \( \theta \). |
+| **8. Update Target Network** | Every C steps, copy weights from the Main Q-Network to the Target Network: \( \theta^- \leftarrow \theta \). This helps stabilize training. |
+| **Loop** | Repeat this workflow across many episodes and time steps. The agent gradually learns to take actions that maximize long-term rewards. |
 
 
-<img src="./highlevel_training.jpeg" alt="Breakout" width="500" height="300"/>
+### 1. **Initialize Components**
 
-Since we learned each component of Deep Q-Learning model architecture and how each components function, let's apply it in Atari Breakout game. 
-
-## Training DQL in Atari Breakout
-
-#### 1. **Initialize components**
 - A **Replay Buffer** `D` to store past transitions: `(s, a, r, s')`
 - A **Main Q-Network** with parameters `θ` (randomly initialized)
 - A **Target Q-Network** with parameters `θ⁻ = θ` (initially copied from main)
 
-#### 2. **Preprocess game input**
+
+### 2. **Preprocess Game Input**
+
 - Capture **grayscale game frames** (each of size `84 × 84` pixels)
 - **Stack the last 4 frames** to encode motion → input tensor: `4 × 84 × 84`
-- Feed this to the **CNN-based Q-network** to get Q-values for actions:
-  - Move Left
-  - Move Right
-  - Do Nothing
+- Feed this into the **CNN-based Q-network** to output Q-values for each action:
+  - Move Left  
+  - Move Right  
+  - Do Nothing  
 
-#### 3. **Action Selection (Exploration vs Exploitation)**
-Use **ϵ-greedy policy**:
+
+### 3. **Action Selection (Exploration vs. Exploitation)**
+
+Use an **ϵ-greedy policy**:
 - With probability **ϵ**, select a **random** action (explore)
-- Otherwise, select action with **highest predicted Q-value** (exploit)
+- Otherwise, select the action with the **highest predicted Q-value** (exploit)
 
-Initially, ϵ is high (e.g., 1.0) and **decays over time** (e.g., to 0.1) to reduce exploration
-
-#### 4. **Play and Store Experience**
-- Execute chosen action `aₜ`, observe reward `rₜ` and next state `sₜ₊₁`
-- Store transition `(sₜ, aₜ, rₜ, sₜ₊₁)` in replay buffer `D`
+The value of ϵ starts high (e.g., 1.0) and **decays over time** (e.g., to 0.1) to shift gradually from exploration to exploitation.
 
 
-#### 5. **Sample Mini-Batch & Compute Targets**
+### 4. **Play and Store Experience**
+
+- Execute the selected action `aₜ`, observe the reward `rₜ` and the next state `sₜ₊₁`
+- Store the full transition `(sₜ, aₜ, rₜ, sₜ₊₁)` in replay buffer `D`
+
+
+### 5. **Sample Mini-Batch & Compute Targets**
+
 - Randomly sample a batch of transitions from `D`
-- For each:
-  ```math
-  yᵢ = 
-  \begin{cases}
-  rᵢ & \text{if } s'_i \text{ is terminal} \\
-  rᵢ + γ \max_{a'} Q(s'_i, a'; θ⁻) & \text{otherwise}
-  \end{cases}
+- For each sampled transition, compute the target value `yᵢ`:
 
-#### 6. **Update Main Q-Network**
-
-- Use gradient descent to **minimize squared error** between predicted and target Q-values:
-
-  $$
-  L(\theta) = \frac{1}{N} \sum_i \left( y_i - Q(s_i, a_i; \theta) \right)^2
-  $$
-
-- Backpropagate to update $\theta$
+```math
+yᵢ = 
+\begin{cases}
+rᵢ & \text{if } s'_i \text{ is terminal} \\
+rᵢ + \gamma \max_{a'} Q(s'_i, a'; θ⁻) & \text{otherwise}
+\end{cases}
 
 
-#### 7. **Periodically update Target Network**
 
-- Every $C$ steps, copy weights from main to target network: $\theta^{-} \leftarrow \theta$
+>  ### Did you notice how the Replay Buffer is used here?
+
+> - In **Step 3**, the agent interacts with the environment and generates a transition:  
+  `(sₜ, aₜ, rₜ, sₜ₊₁)`
+> - This experience is **stored in the Replay Buffer `D`**.
+> - In **Step 5**, a **random mini-batch** of experiences is **sampled from `D`** to compute target Q-values and train the Q-network.
+
+> --> Breaks correlation between sequential experiences
+> --> Introduces diversity in training batches and help the network generalize better
+
 
 ---
 
@@ -245,7 +266,11 @@ Deep Q-Networks don’t always make perfect predictions — sometimes they guess
 
 When the network updates its Q-values, it looks at the next state and picks the action that has the highest predicted value — using the same network to both choose the best action and evaluate how good that action is. If any of the Q-values are slightly too high (which often happens due to noise or error), the network tends to always pick those overestimated actions.
 
-> This happens because the target Q-value is computed using: $y = r + \gamma \max_{a'} Q(s', a'; \theta^{-})$. This indicates that both the **action selection** (`\max`) and **Q-value estimation** are done using the **same target network** $\theta^{-}$. If Q-values are noisy or imprecise, the max operation tends to selection action with overestimated values. 
+> This happens because the target Q-value is computed using:  
+> \( y = r + \gamma \max_{a'} Q(s', a'; \theta^{-}) \).  
+> In this formulation, the same target network \( \theta^{-} \) is used for both **selecting the best action** (via `max`) and **evaluating its value**.  
+> If the Q-values are noisy or inaccurate, the `max` operation tends to **select actions with overestimated values**, resulting in an overly optimistic target. This systematic bias can accumulate over time and degrade learning performance.
+
 
  Over time, this builds up, and the network keeps getting more and more confident about actions that may not actually be very good.
 
@@ -256,7 +281,7 @@ When the network updates its Q-values, it looks at the next state and picks the 
 
 To go about the issue of the overestimation bias, we can use a Double DQN, which decouples action selection and evaluation through two networks as shown in the figure above. Research shows that by doing so, it reduces over-estimation and stabilizes overall training.
 
-#### Intuition: Analogy with Archery Contest
+## Intuition: Analogy with Archery Contest
 Assume there are 100 archers who have the same skill level and are assigned to shoot at a target. However, there is always a gust of wind blowing 3mph. 
 
 Method 1 (DQN-style) lets each archer fire one arrow, and chooses the archer whose arrow landed closest to the center of the target. 
@@ -278,6 +303,11 @@ Q lear
 2. Algorithm Comparison
 
 
+## References 
+
+Following has a great explanation on how deep Q-learning networks are trained: 
+
+https://towardsdatascience.com/reinforcement-learning-explained-visually-part-5-deep-q-networks-step-by-step-5a5317197f4b/
 
 
 

@@ -170,9 +170,7 @@ Deep Q-Learning utilizes two different Deep Q-Networks.
 
 ### 3. Q value
 
-The Q-value represents:
-
->- The expected **cumulative future reward** the agent can earn from a given state-action pair, assuming it acts optimally thereafter.
+The Q-value represents the expected **cumulative future reward** the agent can earn from a given state-action pair, assuming it acts optimally thereafter.
 
 This estimation guides the agent’s decisions, aiming to choose actions that maximize long-term gain rather than short-term reward.
 
@@ -275,14 +273,19 @@ The problem with method 1 is that the archer might just have gotten lucky due to
 
 #### Final Overview
 
-At the end, you might have felt overwhelmed by the amount of new information in this notes. We will make it clean for you on what are the key points with the real implemention of the algorithm.
+Let’s take a step back and review how everything fits together, especially how Q-Learning evolved into Deep Q-Learning and then into Double DQN.
 
-Q learning --> Deep Q-learning --> Double Deep Q-learning
-1. Higher overview
+1. **Q-Learning**  
+   - This is the most basic version. It uses a lookup table (called a Q-table) to store the value of each action in each state.  
+   - It works well for simple environments but breaks down when there are too many states to keep track of.
 
-Q lear
+2. **Deep Q-Learning (DQN)**  
+   - Instead of a table, DQN uses a neural network to estimate Q-values, which means it can handle huge state spaces like raw pixel inputs from Atari games.  
+   - It adds two key techniques to stabilize learning: **experience replay** (reusing past experiences) and a **target network** (to avoid chasing moving targets).
 
-2. Algorithm Comparison
+3. **Double DQN**  
+   - One problem with DQN is that it tends to overestimate Q-values, which can make learning unstable.  
+   - Double DQN fixes this by separating the networks used to choose and evaluate actions. This leads to more accurate Q-value estimates and better performance.
 
 
 ## References 
